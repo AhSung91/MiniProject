@@ -1,5 +1,7 @@
 package kr.co.softcampus.config;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -19,6 +21,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import kr.co.softcampus.beans.UserBean;
+import kr.co.softcampus.interceptor.CheckLoginInterceptor;
 import kr.co.softcampus.interceptor.TopMenuInterceptor;
 import kr.co.softcampus.mapper.BoardMapper;
 import kr.co.softcampus.mapper.TopMenuMapper;
@@ -51,6 +55,9 @@ public class ServletAppContext implements WebMvcConfigurer {
 	
 	@Value("${db.password}")
 	private String db_password;
+	
+	@Resource(name ="loginUserBean")
+	private UserBean loginUserBean;	//상단메뉴를 login전/후로 나누기위한 빈을 주입
 	
 	@Autowired
 	private TopMenuService topMenuService;
@@ -127,10 +134,16 @@ public class ServletAppContext implements WebMvcConfigurer {
 		// TODO Auto-generated method stub
 		WebMvcConfigurer.super.addInterceptors(registry);
 		
-		TopMenuInterceptor topMenuInterceptor = new TopMenuInterceptor(topMenuService);
+		TopMenuInterceptor topMenuInterceptor = new TopMenuInterceptor(topMenuService,loginUserBean);
 		
 		InterceptorRegistration reg1 = registry.addInterceptor(topMenuInterceptor);
 		reg1.addPathPatterns("/**");
+		
+		//login여부 interceptor
+		CheckLoginInterceptor checkLoginInterceptor = new CheckLoginInterceptor(loginUserBean);
+		InterceptorRegistration reg2 = registry.addInterceptor(checkLoginInterceptor);
+		reg2.addPathPatterns("/user/modify","/user/logout","/board/*"); //해당 경로로 접속할 경우 로그인 여부를 확인
+		reg2.excludePathPatterns("/board/main");	//해당 경로는 제외시킨다(위에서 board의 모든경로를 적었기때문에 main은 따로 제외를 시켜주었다)
 	}
 	
 	@Bean	//앞서 등록된 propertySour와 다른 propertySour를 등록해줄때 별도로 등록을 해주기 위한 메서드
