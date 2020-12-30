@@ -22,4 +22,13 @@ public class UserDao {
 	public UserBean getLoginUserInfo(UserBean tempLoginUserBean) {
 		return userMapper.getLoginUserInfo(tempLoginUserBean);
 	}
+	
+	//정보수정을 위해 로그인한 유저의 인덱스 번호를 받아서 진행
+	public UserBean getModifyUserInfo(int user_idx) {
+		return userMapper.getModifyUserInfo(user_idx);
+		
+	}
+	public void modifyUserInfo(UserBean modifyUserBean) {
+		userMapper.modifyUserInfo(modifyUserBean);
+	}
 }

@@ -73,12 +73,25 @@ public class UserController {
 
 		return "user/join_success";
 	}
+	
+	@GetMapping("/modify")				//jsp에서 modifyUserBean을 받아옴
+	public String modify(@ModelAttribute("modifyUserBean") UserBean modifyUserBean) {
 
-	@GetMapping("/modify")
-	public String modify() {
-
+		userService.getModifyUserInfo(modifyUserBean);
 		return "user/modify";
 	}
+	
+	@PostMapping("/modify_pro")	//정보수정 유효성 검사
+	public String modify_pro(@Valid @ModelAttribute("modifyUserBean") UserBean modifyUserBean,BindingResult result) {
+		
+		if (result.hasErrors()) {
+			return "user/modify";
+		}
+		
+		userService.modifyUserInfo(modifyUserBean);
+		return "user/modify_success";
+	}
+	
 
 	@GetMapping("/logout")
 	public String logout() {

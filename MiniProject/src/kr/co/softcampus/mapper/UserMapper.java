@@ -2,6 +2,7 @@ package kr.co.softcampus.mapper;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import kr.co.softcampus.beans.UserBean;
 
@@ -19,4 +20,14 @@ public interface UserMapper {
 			"from user_table " + 
 			"where user_id = #{user_id} and user_pw = #{user_pw}")
 	UserBean getLoginUserInfo(UserBean tempLoginUserBean);
+	
+	@Select("select user_id, user_name " +
+			"from user_table " +
+			"where user_idx = #{user_idx}")
+	UserBean getModifyUserInfo(int user_idx);	//현재 로그인한 아이디의 인덱스 번호를 추출
+	
+	@Update("update user_table " +
+			"set user_pw = #{user_pw} " +
+			"where user_idx = #{user_idx}")
+	void modifyUserInfo(UserBean modifyUserBean);
 }
