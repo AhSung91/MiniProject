@@ -24,10 +24,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import kr.co.softcampus.beans.UserBean;
 import kr.co.softcampus.interceptor.CheckLoginInterceptor;
+import kr.co.softcampus.interceptor.CheckWriterInterceptor;
 import kr.co.softcampus.interceptor.TopMenuInterceptor;
 import kr.co.softcampus.mapper.BoardMapper;
 import kr.co.softcampus.mapper.TopMenuMapper;
 import kr.co.softcampus.mapper.UserMapper;
+import kr.co.softcampus.service.BoardService;
 import kr.co.softcampus.service.TopMenuService;
 //설정과 관련된 Bean
 
@@ -59,6 +61,9 @@ public class ServletAppContext implements WebMvcConfigurer {
 	
 	@Resource(name ="loginUserBean")
 	private UserBean loginUserBean;	//상단메뉴를 login전/후로 나누기위한 빈을 주입
+	
+	@Autowired
+	private BoardService boardService;
 	
 	@Autowired
 	private TopMenuService topMenuService;
@@ -145,6 +150,13 @@ public class ServletAppContext implements WebMvcConfigurer {
 		InterceptorRegistration reg2 = registry.addInterceptor(checkLoginInterceptor);
 		reg2.addPathPatterns("/user/modify","/user/logout","/board/*"); //해당 경로로 접속할 경우 로그인 여부를 확인
 		reg2.excludePathPatterns("/board/main");	//해당 경로는 제외시킨다(위에서 board의 모든경로를 적었기때문에 main은 따로 제외를 시켜주었다)
+		
+		//수정및 삭제 interceptor등록
+		CheckWriterInterceptor checkWriterInterceptor = new CheckWriterInterceptor(loginUserBean, boardService);
+		InterceptorRegistration reg3 = registry.addInterceptor(checkWriterInterceptor);
+		reg3.addPathPatterns("/board/modify","/board/delete");
+		
+		
 	}
 	
 	@Bean	//앞서 등록된 propertySour와 다른 propertySour를 등록해줄때 별도로 등록을 해주기 위한 메서드
